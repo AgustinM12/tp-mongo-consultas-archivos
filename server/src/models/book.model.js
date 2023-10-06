@@ -36,7 +36,7 @@ export const Book = model("Book", bookSchema);
 //SERVICIOS
 
 //CARGAR LIBRO
-export async function createBook(dataBook) {
+export async function createBook(dataBook, portrait) {
     try {
 
         const book = await Book.create({
@@ -44,12 +44,13 @@ export async function createBook(dataBook) {
             genre: dataBook.genre,
             year: dataBook.year,
             description: dataBook.description,
-            portrait: dataBook.portrait,
+            portrait: portrait.name,
             author: dataBook.author
         })
 
         if (book) {
-            await Author.findByIdAndUpdate(book.author, { $push: { books: book._id } })
+            await Author.findByIdAndUpdate(book.author, { $push: { books: book._id } }) ?? null
+            return book
         }
 
     } catch (error) {
