@@ -2,7 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import fileUpload from "express-fileupload";
-import { connectDB } from "./src/config/db.js";
+import { connectDB, createDocumentsinDB } from "./src/config/db.js";
 import { authorRouter, bookRouter } from "./src/routes/allRouter.routes.js"
 import path from "path";
 
@@ -28,6 +28,7 @@ app.use(bookRouter);
 app.listen(PORT, () => {
     try {
         connectDB();
+        createDocumentsinDB()
         console.log(`Server on port localhost:${PORT}`);
     } catch (error) {
         console.log("Error connecting to DB", error);

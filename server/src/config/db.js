@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import "dotenv/config"
+import { createDefaultAuthors } from "../models/author.model.js";
 
 export const connectDB = async () => {
     try {
@@ -9,3 +10,10 @@ export const connectDB = async () => {
         console.log("Error al conectar a la DB", error);
     }
 };
+
+export const createDocumentsinDB = async()=>{
+    mongoose.connection.once("open", async () => {
+        await createDefaultAuthors();
+        console.log("DB ready");
+    })
+}
