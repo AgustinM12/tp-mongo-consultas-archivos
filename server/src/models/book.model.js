@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import { Author } from "./author.model.js";
+import path from "path";
 
 const bookSchema = new Schema({
     title: {
@@ -38,23 +39,43 @@ export const Book = model("Book", bookSchema);
 //CARGAR LIBRO
 export async function createBook(dataBook, portrait) {
     try {
+        const existBook = await Book.findOne({ title: dataBook.title });
+        if(existBook) {
+            throw new Error("Ya existe un libro con ese nombre");
+        }
+
+        const existAuthor = await Author.findById(dataBook.author );
+        if(!existAuthor) {
+            throw new Error("No existe el autor elegido");
+        }
+
+        if (!portrait) {
+            throw new Error("No se ha subido ningún archivo de imagen");
+        }
+
+        const portraitName = portrait.name; // Obtén el nombre del archivo
+
+        // Mueve el archivo temporal a la carpeta de imágenes
+        await portrait.mv(path.join(process.cwd(), './src/images/', portraitName));
 
         const book = await Book.create({
             title: dataBook.title,
             genre: dataBook.genre,
             year: dataBook.year,
             description: dataBook.description,
-            portrait: portrait.name,
+            portrait: `src/images/${portraitName}`,
             author: dataBook.author
         })
 
         if (book) {
-            await Author.findByIdAndUpdate(book.author, { $push: { books: book._id } }) ?? null
-            return book
+            existAuthor.books.push(book._id);
+            existAuthor.save()
+            // await Author.findByIdAndUpdate(book.author, { $push: { books: book._id } });
+            return book;
         }
-
     } catch (error) {
         console.log("Error creating book", error);
+        throw error;
     }
 };
 
@@ -100,11 +121,11 @@ export async function updateBook(dataBook, bookId, portrait) {
 //ELIMINAR UN LIBRO
 export async function deleteBook(bookId) {
     try {
-        const authorsWithBook = await Author.findOne({ books: bookId } );
-        
+        const authorsWithBook = await Author.findOne({ books: bookId });
+
         const deletedBook = await Book.findByIdAndDelete(bookId);
 
-        if(deletedBook){
+        if (deletedBook) {
             authorsWithBook.books.pull(bookId)
             await authorsWithBook.save();
         }

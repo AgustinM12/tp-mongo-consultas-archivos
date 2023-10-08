@@ -19,7 +19,7 @@ export const ctrlCreateBook = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        return res.status(500).json("Internal Server Error...")
+        return res.status(400).json({message: error.message}) || res.status(500).json("Internal Server Error...")
     }
 }
 
