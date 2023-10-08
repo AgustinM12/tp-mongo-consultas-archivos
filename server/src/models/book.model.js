@@ -62,7 +62,7 @@ export async function createBook(dataBook, portrait) {
 export async function findAllBooks() {
     try {
 
-        return await Book.find().populate("author", { books: 0, _id: 0, model: 0 });
+        return await Book.find().populate("author", { books: 0, _id: 0, bio: 0 });
 
     } catch (error) {
         console.log("Error at find books", error);
@@ -72,7 +72,7 @@ export async function findAllBooks() {
 //LISTAR UN LIBRO
 export async function findBook(bookId) {
     try {
-        return await Book.findById(bookId).populate("author", { books: 0, _id: 0, model: 0 });
+        return await Book.findById(bookId).populate("author", { books: 0, _id: 0, bio: 0 });
     } catch (error) {
         console.log("Error at find book", error);
     }
@@ -80,7 +80,7 @@ export async function findBook(bookId) {
 
 
 //ACTUALIZAR UN LIIBRO
-export async function updateBook(dataBook, bookId) {
+export async function updateBook(dataBook, bookId, portrait) {
     try {
         return await Book.findByIdAndUpdate(bookId,
             {
@@ -88,6 +88,7 @@ export async function updateBook(dataBook, bookId) {
                 genre: dataBook.genre,
                 year: dataBook.year,
                 description: dataBook.description,
+                author: dataBook.author,
                 portrait: portrait.name,
             },
             { new: true })
@@ -99,12 +100,19 @@ export async function updateBook(dataBook, bookId) {
 //ELIMINAR UN LIBRO
 export async function deleteBook(bookId) {
     try {
-        return await Book.findByIdAndDelete(bookId);
+        const authorsWithBook = await Author.findOne({ books: bookId } );
+        
+        const deletedBook = await Book.findByIdAndDelete(bookId);
+
+        if(deletedBook){
+            authorsWithBook.books.pull(bookId)
+            await authorsWithBook.save();
+        }
     } catch (error) {
         console.log("Error at delete book", error);
+        throw error; // Debes propagar el error para que sea manejado en el controlador
     }
 }
-
 
 //CAMBIAR AUTOR DE UN LIBRO
 export async function changeBookAuthor(bookId, authorId) {
@@ -118,3 +126,34 @@ export async function changeBookAuthor(bookId, authorId) {
         console.log("Error at change book author", error);
     }
 }
+
+
+// export async function deleteBook(bookId) {
+//     try {
+//         // Buscar el libro que se va a eliminar
+//         const deletedBook = await Book.findByIdAndDelete(bookId);
+
+//         if (!deletedBook) {
+//             // Si el libro no se encontró, puedes manejarlo de acuerdo a tus necesidades
+//             return { success: false, message: 'Libro no encontrado' };
+//         }
+
+//         // Ahora, necesitamos encontrar a todos los autores que tienen este libro en su lista de libros
+//         const authorsWithBook = await Author.find({ books: bookId });
+
+//         // Actualizar la lista de libros de cada autor
+//         const updatePromises = authorsWithBook.map(async (author) => {
+//             const updatedBooks = author.books.filter((book) => book.toString() !== bookId.toString());
+//             author.books = updatedBooks;
+//             await author.save();
+//         });
+
+//         // Esperar a que todas las actualizaciones se completen
+//         await Promise.all(updatePromises);
+
+//         return { success: true, message: 'Libro eliminado exitosamente' };
+//     } catch (error) {
+//         console.error("Error al eliminar el libro", error);
+//         return { success: false, message: 'Error al eliminar el libro' };
+//     }
+// }

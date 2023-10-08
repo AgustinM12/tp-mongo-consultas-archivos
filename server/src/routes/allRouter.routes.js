@@ -20,7 +20,7 @@ bookRouter.post("/createBook", ctrlCreateBook)
 
 bookRouter.get("/findBooks", ctrlFindAllBooks)
 
-bookRouter.get("/findBook", ctrlFindBook)
+bookRouter.get("/findBook/:id", ctrlFindBook)
 
 bookRouter.put("/updateBook/:id", ctrlUpdateBook)
 

@@ -52,10 +52,11 @@ export const ctrlUpdateBook = async (req, res) => {
     try {
         const dataBook = req.body
         const bookId = req.params.id
+        const portrait = req.files.portrait
 
-        const updatedBook = await updateBook(dataBook, bookId)
+        const updatedBook = await updateBook(dataBook, bookId, portrait)
         if (updatedBook) {
-            return res.status(200).json(updatedBook)
+            return res.status(200).json("Book updated successfully")
         }
     } catch (error) {
         console.log(error);
@@ -67,9 +68,10 @@ export const ctrlDeleteBook = async (req, res) => {
     try {
         const bookId = req.params.id
         const deletedBook = await deleteBook(bookId)
-        if (deletedBook) {
-            res.status(204).json("Book deleted successfully")
-        }
+
+    console.log(deletedBook);
+            return res.status(201).json("Book deleted successfuly")
+            
     } catch (error) {
         console.log(error);
         return res.status(500).json("Internal Server Error...")

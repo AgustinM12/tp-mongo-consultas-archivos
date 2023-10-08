@@ -1,5 +1,7 @@
 import { Schema, model } from "mongoose";
 
+import { Book } from "./book.model.js";
+
 const authorSchema = new Schema({
     name: {
         type: String,
@@ -81,8 +83,19 @@ export async function updateAuthor(dataAuthor, authorId) {
 //ELIMINAR UN AUTOR
 export async function deleteAuthor(authorId) {
     try {
-        return await Author.findByIdAndDelete(authorId);
+        // Buscar libros con el autor especificado
+
+        // Eliminar al autor
+        const deletedAuthor = await Author.findByIdAndDelete(authorId);
+
+        if (deletedAuthor) {
+            // Eliminar todos los libros asociados al autor
+            await Book.deleteMany({ author: authorId });
+        }
+
+        return deletedAuthor
     } catch (error) {
         console.log("Error at delete author", error);
+        throw error; // Propaga el error para que sea manejado en otro lugar si es necesario
     }
 }

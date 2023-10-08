@@ -1,4 +1,4 @@
 server/node_modules
 server/src/logs
-server/src/tmp
+server/src/images
 server/.env

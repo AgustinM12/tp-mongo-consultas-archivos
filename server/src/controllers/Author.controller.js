@@ -59,7 +59,7 @@ export const ctrlDeleteAuthor = async (req, res) => {
         const authorId = req.params.id
         const deletedAuthor = await deleteAuthor(authorId)
         if (deletedAuthor) {
-            return res.status(201).json("Author deleted successfully")
+            return res.status(200).json("Author deleted successfully")
         }
     } catch (error) {
         console.log(error);
