@@ -1,6 +1,6 @@
 import {Router} from "express"
 import { ctrlCreateAuthor, ctrlFindAuthor, ctrlUpdateAuthor, ctrlFindAllAuthors, ctrlDeleteAuthor } from "../controllers/Author.controller.js"
-import { ctrlCreateBook, ctrlFindAllBooks, ctrlUpdateBook, ctrlFindBook, ctrlDeleteBook,ctrlChangeBookAuthor } from "../controllers/Book.controller.js"
+import { ctrlCreateBook, ctrlFindAllBooks, ctrlUpdateBook, ctrlFindBook, ctrlDeleteBook,ctrlChangeBookAuthor, ctrlFindBookGenre } from "../controllers/Book.controller.js"
 export const authorRouter = Router()
 export const bookRouter = Router()
 
@@ -27,3 +27,5 @@ bookRouter.put("/updateBook/:id", ctrlUpdateBook)
 bookRouter.delete("/deleteBook/:id", ctrlDeleteBook)
 
 bookRouter.put("/updateBookAuthor", ctrlChangeBookAuthor)
+
+bookRouter.get("/findBookGenre", ctrlFindBookGenre)

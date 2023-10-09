@@ -40,12 +40,12 @@ export const Book = model("Book", bookSchema);
 export async function createBook(dataBook, portrait) {
     try {
         const existBook = await Book.findOne({ title: dataBook.title });
-        if(existBook) {
+        if (existBook) {
             throw new Error("Ya existe un libro con ese nombre");
         }
 
-        const existAuthor = await Author.findById(dataBook.author );
-        if(!existAuthor) {
+        const existAuthor = await Author.findById(dataBook.author);
+        if (!existAuthor) {
             throw new Error("No existe el autor elegido");
         }
 
@@ -131,16 +131,23 @@ export async function deleteBook(bookId) {
         }
     } catch (error) {
         console.log("Error at delete book", error);
-        throw error; // Debes propagar el error para que sea manejado en el controlador
+        throw error; 
     }
 }
 
 //CAMBIAR AUTOR DE UN LIBRO
 export async function changeBookAuthor(bookId, authorId) {
     try {
+        const oldAuthor = await Author.find({ books: bookId}); 
+
+        const deleteAuthor = await Author.findByIdAndUpdate(oldAuthor, { $pull: { books: bookId } });
+        
         const updatedBook = await Book.findByIdAndUpdate(bookId, { author: authorId })
+
         const updatedAuthor = await Author.findByIdAndUpdate(authorId, { $push: { books: bookId } })
-        if (updatedBook && updatedAuthor) {
+
+
+        if (updatedBook && updatedAuthor && deleteAuthor) {
             return updatedBook
         }
     } catch (error) {
@@ -148,33 +155,20 @@ export async function changeBookAuthor(bookId, authorId) {
     }
 }
 
-
-// export async function deleteBook(bookId) {
-//     try {
-//         // Buscar el libro que se va a eliminar
-//         const deletedBook = await Book.findByIdAndDelete(bookId);
-
-//         if (!deletedBook) {
-//             // Si el libro no se encontró, puedes manejarlo de acuerdo a tus necesidades
-//             return { success: false, message: 'Libro no encontrado' };
-//         }
-
-//         // Ahora, necesitamos encontrar a todos los autores que tienen este libro en su lista de libros
-//         const authorsWithBook = await Author.find({ books: bookId });
-
-//         // Actualizar la lista de libros de cada autor
-//         const updatePromises = authorsWithBook.map(async (author) => {
-//             const updatedBooks = author.books.filter((book) => book.toString() !== bookId.toString());
-//             author.books = updatedBooks;
-//             await author.save();
-//         });
-
-//         // Esperar a que todas las actualizaciones se completen
-//         await Promise.all(updatePromises);
-
-//         return { success: true, message: 'Libro eliminado exitosamente' };
-//     } catch (error) {
-//         console.error("Error al eliminar el libro", error);
-//         return { success: false, message: 'Error al eliminar el libro' };
-//     }
-// }
+//FILTRAR UN LIBRO POR GENERO
+export async function countBooksByGenre() {
+    try {
+        const results = await Book.distinct("genre");
+        const genres = {};
+        for (const genre of results) {
+            genres[genre] = 0;
+        }
+        const books = await Book.find();
+        for (const book of books) {
+            genres[book.genre]++;
+        }
+        return genres;
+    } catch (error) {
+        console.log("Error at count books by genre", error);
+    }
+};

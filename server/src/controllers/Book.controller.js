@@ -1,4 +1,4 @@
-import { createBook, findAllBooks, findBook, deleteBook, updateBook, changeBookAuthor } from "../models/book.model.js"
+import { createBook, findAllBooks, findBook, deleteBook, updateBook, changeBookAuthor, countBooksByGenre } from "../models/book.model.js"
 
 export const ctrlCreateBook = async (req, res) => {
     try {
@@ -19,7 +19,7 @@ export const ctrlCreateBook = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        return res.status(400).json({message: error.message}) || res.status(500).json("Internal Server Error...")
+        return res.status(400).json({ message: error.message }) || res.status(500).json("Internal Server Error...")
     }
 }
 
@@ -69,9 +69,9 @@ export const ctrlDeleteBook = async (req, res) => {
         const bookId = req.params.id
         const deletedBook = await deleteBook(bookId)
 
-    console.log(deletedBook);
-            return res.status(201).json("Book deleted successfuly")
-            
+        console.log(deletedBook);
+        return res.status(201).json("Book deleted successfuly")
+
     } catch (error) {
         console.log(error);
         return res.status(500).json("Internal Server Error...")
@@ -93,3 +93,16 @@ export const ctrlChangeBookAuthor = async (req, res) => {
         return res.status(500).json("Internal Server Error...")
     }
 }
+
+export const ctrlFindBookGenre = async (req, res) => {
+
+    try {
+        const genre = await countBooksByGenre()
+        if (genre) {
+            return res.status(200).json(genre)
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json("Internal Server Error...")
+    }
+};
